@@ -9,4 +9,6 @@ public interface ICityDao {
 
 	List<CityBean> obtenerTodos() throws InternalException;
 
+	CityBean guardar(CityBean city) throws InternalException;
+
 }

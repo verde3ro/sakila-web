@@ -2,6 +2,7 @@ package com.appstracta.dao.impl;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class CityDaoImpl implements ICityDao {
 				+ "INNER JOIN city c1 ON c2.country_id = c1.country_id ORDER BY c1.city_id";
 
 		try {
-			log.info("::::::::: Consulta ciudades ::::: ");
+			log.info("::::::::: Consulta ciudades ::::::: ");
 			conexion = new Conexion();
 			conexion.connectar();
 
@@ -54,6 +55,44 @@ public class CityDaoImpl implements ICityDao {
 		} catch (Exception ex) {
 			log.error("Ocurrió un error al traer los datos de las ciudades.", ex);
 			throw new InternalException("Ocurrió un error al traer los datos de las ciudades.");
+		} finally {
+			if (conexion != null) {
+				try {
+					conexion.cerrar();
+				} catch (Exception e) {
+					log.error("Ocurrió un error al cerrar la conexión de la base de datos.");
+					throw new InternalException("Ocurrió un error al cerrar la conexión de la base de datos.");
+				}
+			}
+		}
+	}
+
+	@Override
+	public CityBean guardar(CityBean city) throws InternalException {
+		Conexion conexion = null;
+
+		try {
+			conexion = new Conexion();
+			conexion.connectar();
+			String sql = "INSERT INTO city (city, country_id, last_update) VALUES (?, ?, ?)";
+
+			try (PreparedStatement ps = conexion.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+				ps.setString(1, city.getCity());
+				ps.setInt(2, city.getCityId());
+				ps.setDate(3, new java.sql.Date(city.getLastUpdate().getTime()));
+				ps.executeUpdate();
+
+				ResultSet rs = ps.getGeneratedKeys();
+
+				if (rs.next()) {
+					city.setCityId(rs.getInt(1));
+				}
+			}
+
+			return city;
+		} catch (Exception ex) {
+			log.error("Ocurrió un error al insertar los datos de la ciudad.", ex);
+			throw new InternalException("Ocurrió un error al insertar los datos de la ciudad.");
 		} finally {
 			if (conexion != null) {
 				try {
