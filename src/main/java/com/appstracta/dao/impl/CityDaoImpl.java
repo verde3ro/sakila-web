@@ -78,7 +78,7 @@ public class CityDaoImpl implements ICityDao {
 
 			try (PreparedStatement ps = conexion.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 				ps.setString(1, city.getCity());
-				ps.setInt(2, city.getCityId());
+				ps.setInt(2, city.getCountry().getCountryId());
 				ps.setDate(3, new java.sql.Date(city.getLastUpdate().getTime()));
 				ps.executeUpdate();
 
